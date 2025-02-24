@@ -1,119 +1,150 @@
-# Full-Stack Coding Challenge
+\documentclass[12pt]{article}
 
-**Deadline**: Sunday, Feb 23th 11:59 pm PST
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper}
 
----
+\title{Task Management Application - README}
+\author{}
+\date{}
 
-## Overview
+\begin{document}
 
-Create a “Task Management” application with **React + TypeScript** (frontend), **Node.js** (or **Nest.js**) (backend), and **PostgreSQL** (database). The application should:
+\maketitle
 
-1. **Register** (sign up) and **Log in** (sign in) users.
-2. After logging in, allow users to:
-   - **View a list of tasks**.
-   - **Create a new task**.
-   - **Update an existing task** (e.g., mark complete, edit).
-   - **Delete a task**.
+\section*{Overview}
+This document provides a detailed guide on setting up and running the Task Management application. The application allows users to register, log in, and manage tasks. The stack used for this project includes:
+\begin{itemize}
+    \item Backend: Node.js with Express and TypeScript
+    \item Frontend: React with TypeScript
+    \item Database: PostgreSQL
+\end{itemize}
 
-Focus on **correctness**, **functionality**, and **code clarity** rather than visual design.  
-This challenge is intended to be completed within ~3 hours, so keep solutions minimal yet functional.
+\section*{Setup Instructions}
 
----
+\subsection*{1. Database Setup}
 
-## Requirements
+\subsubsection*{1.1. Install PostgreSQL}
+First, ensure that PostgreSQL is installed on your machine. You can download and install PostgreSQL from the official website: \url{https://www.postgresql.org/download/}.
 
-### 1. Authentication
+\subsubsection*{1.2. Create a Database}
+After installing PostgreSQL, open the PostgreSQL shell or use a database management tool like pgAdmin to create a new database for the application. Execute the following SQL command:
 
-- **User Model**:
-  - `id`: Primary key
-  - `username`: Unique string
-  - `password`: Hashed string
-- **Endpoints**:
-  - `POST /auth/register` – Create a new user
-  - `POST /auth/login` – Login user, return a token (e.g., JWT)
-- **Secure the Tasks Routes**: Only authenticated users can perform task operations.  
-  - **Password Hashing**: Use `bcrypt` or another hashing library to store passwords securely.
-  - **Token Verification**: Verify the token (JWT) on each request to protected routes.
+\begin{verbatim}
+CREATE DATABASE task_management;
+\end{verbatim}
 
-### 2. Backend (Node.js or Nest.js)
+\subsubsection*{1.3. Create Tables}
+The database requires two tables: \texttt{users} and \texttt{tasks}. You can run the following SQL script to create them:
 
-- **Tasks CRUD**:  
-  - `GET /tasks` – Retrieve a list of tasks (optionally filtered by user).  
-  - `POST /tasks` – Create a new task.  
-  - `PUT /tasks/:id` – Update a task (e.g., mark as complete, edit text).  
-  - `DELETE /tasks/:id` – Delete a task.
-- **Task Model**:
-  - `id`: Primary key
-  - `title`: string
-  - `description`: string (optional)
-  - `isComplete`: boolean (default `false`)
-  - _(Optional)_ `userId` to link tasks to the user who created them
-- **Database**: PostgreSQL
-  - Provide instructions/migrations to set up:
-    - `users` table (with hashed passwords)
-    - `tasks` table
-- **Setup**:
-  - `npm install` to install dependencies
-  - `npm run start` (or `npm run dev`) to run the server
-  - Document any environment variables (e.g., database connection string, JWT secret)
+\begin{verbatim}
+-- users table
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL
+);
 
-### 3. Frontend (React + TypeScript)
+-- tasks table
+CREATE TABLE IF NOT EXISTS tasks (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  isComplete BOOLEAN DEFAULT FALSE,
+  userId INTEGER REFERENCES users(id) ON DELETE CASCADE
+);
+\end{verbatim}
 
-- **Login / Register**:
-  - Simple forms for **Register** and **Login**.
-  - Store JWT (e.g., in `localStorage`) upon successful login.
-  - If not authenticated, the user should not see the tasks page.
-- **Tasks Page**:
-  - Fetch tasks from `GET /tasks` (including auth token in headers).
-  - Display the list of tasks.
-  - Form to create a new task (`POST /tasks`).
-  - Buttons/fields to update a task (`PUT /tasks/:id`).
-  - Button to delete a task (`DELETE /tasks/:id`).
-- **Navigation**:
-  - Show `Login`/`Register` if not authenticated.
-  - Show `Logout` if authenticated.
-- **Setup**:
-  - `npm install` then `npm start` (or `npm run dev`) to run.
-  - Document how to point the frontend at the backend (e.g., `.env` file, base URL).
+\subsubsection*{1.4. Database Migrations (Optional)}
+For a more automated approach, you can use a migration tool such as \texttt{node-pg-migrate}. However, this step is optional, and you can manually execute the SQL script provided above.
 
----
+\subsection*{2. Backend Setup}
 
-## Deliverables
+\subsubsection*{2.1. Install Dependencies}
+Navigate to the backend directory and install the required dependencies:
 
-1. **Fork the Public Repository**: **Fork** this repo into your own GitHub account.
-2. **Implement Your Solution** in the forked repository. Make sure you're README file has:
-   - Steps to set up the database (migrations, environment variables).
-   - How to run the backend.
-   - How to run the frontend.
-   - Any relevant notes on testing.
-   - Salary Expectations per month (Mandatory)
-3. **Short Video Demo**: Provide a link (in a `.md` file in your forked repo) to a brief screen recording showing:
-   - Registering a user
-   - Logging in
-   - Creating, updating, and deleting tasks
-4. **Deadline**: Submissions are due **Sunday, Feb 23th 11:59 pm PST**.
+\begin{verbatim}
+npm install
+\end{verbatim}
 
-> **Note**: Please keep your solution minimal. The entire project is intended to be completed in around 3 hours. Focus on core features (registration, login, tasks CRUD) rather than polished UI or extra features.
+\subsubsection*{2.2. Environment Variables}
+Create a \texttt{.env} file in the root of your backend project with the following variables:
 
----
+\begin{verbatim}
+PORT=5000
+DATABASE_URL=postgres://username:password@localhost:5432/task_management
+JWT_SECRET=your_jwt_secret_here
+\end{verbatim}
 
-## Evaluation Criteria
+Replace \texttt{username} and \texttt{password} with your PostgreSQL credentials and choose a secure \texttt{JWT\_SECRET} for signing JWT tokens.
 
-1. **Functionality**  
-   - Does registration and login work correctly (with password hashing)?
-   - Are tasks protected by authentication?
-   - Does the tasks CRUD flow work end-to-end?
+\subsubsection*{2.3. Run the Backend}
+To run the backend server, use the following command:
 
-2. **Code Quality**  
-   - Is the code structured logically and typed in TypeScript?
-   - Are variable/function names descriptive?
+\begin{verbatim}
+npm run dev
+\end{verbatim}
 
-3. **Clarity**  
-   - Is the `README.md` (in your fork) clear and detailed about setup steps?
-   - Easy to run and test?
+This will start the server on port 5000 (or any port specified in the \texttt{.env} file).
 
-4. **Maintainability**  
-   - Organized logic (controllers/services, etc.)
-   - Minimal hard-coded values
+\subsection*{3. Frontend Setup}
 
-Good luck, and we look forward to your submission!
+\subsubsection*{3.1. Install Dependencies}
+Navigate to the frontend directory and install the required dependencies:
+
+\begin{verbatim}
+npm install
+\end{verbatim}
+
+\subsubsection*{3.2. Run the Frontend}
+To run the frontend development server, use the following command:
+
+\begin{verbatim}
+npm start
+\end{verbatim}
+
+This will start the frontend on \texttt{http://localhost:3000}. Ensure that the backend server is running as well to allow frontend-backend communication.
+
+\subsection*{4. Frontend Features}
+The frontend allows users to:
+\begin{itemize}
+    \item Register a new user
+    \item Log in with an existing user account
+    \item Create, update, and delete tasks
+\end{itemize}
+
+All task management functionalities are secured and require an authenticated user to access.
+
+\subsection*{5. Testing}
+To ensure that the application works as expected, the following tests should be performed:
+
+\subsubsection*{5.1. Backend Testing}
+You can use tools like \texttt{Postman} or \texttt{cURL} to test the API endpoints:
+\begin{itemize}
+    \item \texttt{POST /auth/register}: Registers a new user.
+    \item \texttt{POST /auth/login}: Logs in the user and returns a JWT token.
+    \item \texttt{GET /tasks}: Fetches all tasks for the authenticated user.
+    \item \texttt{POST /tasks}: Creates a new task.
+    \item \texttt{PUT /tasks/:id}: Updates a task (e.g., mark complete, edit).
+    \item \texttt{DELETE /tasks/:id}: Deletes a task.
+\end{itemize}
+
+\subsubsection*{5.2. Frontend Testing}
+- Test the registration and login forms to ensure that users can sign up and log in successfully.
+- Test the task management functionalities to ensure tasks can be created, updated, and deleted.
+
+Verify that all interactions between the frontend and backend are working as expected by checking network requests in the browser's developer tools.
+
+\section*{Salary Expectations}
+
+Based on the complexity of this project and the skill set required, the following monthly salary expectations are typical:
+
+\begin{itemize}
+    \item \textbf{Entry-level (0-2 years experience)}: \$4,000 - \$5,500 per month
+    \item \textbf{Mid-level (2-5 years experience)}: \$5,500 - \$8,000 per month
+    \item \textbf{Senior-level (5+ years experience)}: \$8,000 - \$12,000 per month
+\end{itemize}
+
+Given the required skills in backend development (Node.js, PostgreSQL, JWT) and frontend development (React, TypeScript), a rate of \textbf{more than \$25/hour} is considered reasonable, depending on experience and location.
+
+\end{document}
