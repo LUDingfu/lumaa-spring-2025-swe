@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 
 interface AuthFormProps {
@@ -9,7 +9,7 @@ interface AuthFormProps {
 const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,9 +19,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
             if (type === 'login') {
                 localStorage.setItem('token', response.data.token);
-                history.push('/tasks');
+                navigate('/tasks');
             } else {
-                history.push('/login');
+                navigate('/login');
             }
         } catch (error) {
             console.error(`${type === 'register' ? 'Register' : 'Login'} failed:`, error);
