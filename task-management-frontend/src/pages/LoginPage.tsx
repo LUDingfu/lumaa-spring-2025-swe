@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const response = await API.post('/auth/login', { username, password });
             localStorage.setItem('token', response.data.token);
-            history.push('/tasks');
+            navigate('/tasks');
         } catch (error) {
             console.error('Login failed:', error);
         }
